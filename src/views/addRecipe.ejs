@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Recipe</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <%- include('partials/header') %>
+    <main class="container">
+        <h1>Add a New Recipe</h1>
+        <div id="error-message" style="display:none;color:red;margin-bottom:10px;"></div>
+        <form action="/add-recipe" method="POST" id="add-recipe-form"> 
+            <div class="form-group">
+                <label for="recipeName">Recipe Name:</label>
+                <input type="text" id="recipeName" name="recipeName" required>
+            </div>
+            <div class="form-group">
+                <label for="proteinType">Protein Type:</label>
+                <div id="protein-container">
+                    <select id="proteinType" name="proteinType" required>
+                        <% proteinTypes.forEach(function(protein) { %>
+                            <option value="<%= protein.name %>"><%= protein.name %></option>
+                        <% }); %>
+                    </select>
+                    <button type="button" id="add-protein-btn">Add New Protein</button>
+                </div>
+                <div id="new-protein-form" style="display: none; margin-top: 10px;">
+                    <input type="text" id="new-protein-name" placeholder="Protein Name">
+                    <button type="button" id="save-protein-btn">Save Protein</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="ingredients">Ingredients:</label>
+                <div id="ingredient-container">
+                    <input type="text" id="ingredient-search" placeholder="Search ingredients...">
+                    <div id="ingredient-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+                        <% ingredients.forEach(function(ingredient) { %>
+                            <div class="ingredient-item" data-ingredient-id="<%= ingredient.id %>">
+                                <input type="checkbox" id="ingredient-<%= ingredient.id %>" name="ingredients[]" value="<%= ingredient.id %>">
+                                <label for="ingredient-<%= ingredient.id %>"><%= ingredient.name %></label>
+                            </div>
+                        <% }); %>
+                    </div>
+                    <button type="button" id="add-ingredient-btn">Add New Ingredient</button>
+                </div>
+                <div id="new-ingredient-form" style="display: none; margin-top: 10px;">
+                    <input type="text" id="new-ingredient-name" placeholder="Ingredient Name">
+                    <button type="button" id="save-ingredient-btn">Save Ingredient</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="instructions">Instructions:</label>
+                <textarea id="instructions" name="instructions" rows="5" required></textarea>
+            </div>
+            <button type="submit" id="submit-recipe-btn">Add Recipe</button>
+        </form>
+        <div id="ingredient-delete-forms" style="display:none;">
+            <% ingredients.forEach(function(ingredient) { %>
+                <form action="/add-recipe/ingredients/<%= ingredient.id %>?_method=DELETE" method="POST" id="delete-ingredient-<%= ingredient.id %>"></form>
+            <% }); %>
+        </div>
+    </main>
+    <%- include('partials/footer') %>
+    <script src="/js/formValidation.js"></script>
+    <script src="/js/addProtein.js"></script>
+    <script src="/js/addIngredient.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.ingredient-item').forEach(function(item) {
+                const ingredientId = item.getAttribute('data-ingredient-id');
+                if (ingredientId) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'delete-btn';
+                    btn.textContent = 'Delete';
+                    btn.onclick = function() {
+                        document.getElementById('delete-ingredient-' + ingredientId).submit();
+                    };
+                    item.appendChild(btn);
+                }
+            });
+            document.getElementById('add-protein-btn').addEventListener('click', function() {
+                document.getElementById('new-protein-name').setAttribute('required', 'required');
+            });
+            document.getElementById('save-protein-btn').addEventListener('click', function() {
+                document.getElementById('new-protein-name').removeAttribute('required');
+            });
+            document.getElementById('add-ingredient-btn').addEventListener('click', function() {
+                document.getElementById('new-ingredient-name').setAttribute('required', 'required');
+            });
+            document.getElementById('save-ingredient-btn').addEventListener('click', function() {
+                document.getElementById('new-ingredient-name').removeAttribute('required');
+            });
+        });
+    </script>
+</body>
+</html>
